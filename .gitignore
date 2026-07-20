@@ -1,0 +1,68 @@
+# Tajne pliki projektu
+TestCase01/
+data/
+
+# Środowiska wirtualne (Virtual Environments)
+venv/
+.venv/
+env/
+.env/
+ENV/
+pip-wheel-metadata/
+
+# Pamięć podręczna i pliki skompilowane (Byte-code / caches)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pliki dystrybucyjne i pakiety (Distribution / packaging)
+bin/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Pliki konfiguracyjne i sekrety (Zmień jeśli używasz innych nazw)
+.env
+.secrets
+*.local
+
+# Logi projektowe
+*.log
+local_settings.py
+
+# Narzędzia do testów i jakości kodu (Pytest, Coverage, Tox)
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Notatniki Jupyter
+.ipynb_checkpoints
+
+# Pliki systemowe i IDE (Opcjonalnie, przydatne dla programistów)
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
