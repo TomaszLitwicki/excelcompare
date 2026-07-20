@@ -44,3 +44,27 @@ if len(xml_file) == 1:
 else:
     print(f'{RED}ERROR WITH LOADING XML FILE\nPlease, check that in folder is only 1 file.{RESET}')
     exit()
+
+### ODCZYTYWANIE DANYCH ###
+## EXCEL ##
+excel_dict = {}
+excel_url = folder / NAME_EXCEL_FILE
+with open_workbook(str(excel_url)) as wb:
+    with wb.get_sheet('OUTBOUND') as sheet:
+        for row in sheet.rows():
+            if row[0].v is not None:
+                excel_dict[(row[0].v).removeprefix('outbound.')] = row[1].v
+
+for i in excel_dict.items():
+    print(i)
+
+## XML ##
+xml_url = folder / NAME_XML_FILE
+with open(xml_url, 'r', encoding='utf-8') as xml_file:
+    xml_txt = xml_file.read()
+
+xml_txt = xml_txt.split('<m:xmlString>&lt;outbound>')[1].split('</m:xmlString>')[0].strip()
+xml_list = xml_txt.split('\n')
+xml_list = [i.strip().replace('&lt;','<') for i in xml_list]
+for i in xml_list:
+    print(i)
