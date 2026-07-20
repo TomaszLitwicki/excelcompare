@@ -76,8 +76,8 @@ with open(xml_url, 'r', encoding='utf-8') as xml_file:
 xml_txt = xml_txt.split('<m:xmlString>&lt;outbound>')[1].split('</m:xmlString>')[0].strip()
 xml_list = xml_txt.split('\n')
 xml_list = [i.strip().replace('&lt;','<') for i in xml_list]
-# for i in xml_list:
-#     print(i)
+for i in xml_list:
+    print(i)
 
 ### PORÓWNANIE PLIKÓW ###
 founded_in_xml = ['Nazwa zmiennej']
@@ -86,7 +86,7 @@ for excel in excel_dict.items():
     excel_wartosc = excel[1]
     for xml in xml_list:
         if f'<{excel_klucz}>' in xml or f'<{excel_klucz}/>' in xml:
-            xml_wartosc = konwert(xml.split('>')[1].split('<')[0]) or None
+            xml_wartosc = konwert(xml.split('>')[1].split('<')[0])
             if xml_wartosc in excel_wartosc:
                 print(f'{GREEN}{excel_klucz} - {excel_wartosc} - {xml_wartosc}{RESET}')
             else:
