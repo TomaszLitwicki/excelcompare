@@ -47,12 +47,22 @@ print('🔳 KluczZExcela - [lista wartości z excela] - [lista wartości z xml]\
 ## EXCEL ##
 
 def konwert(el):
+    excel_errors = {
+        '0xf': f'❗BŁĄD SKŁADNI (#ARG!)❗',       # Kod dla #ARG! / #VALUE!
+        '0x7': f'❗BŁĄD DZIELENIA (#DZIEL/0!)❗', # Kod dla #DIV/0!
+        '0x17': f'❗BŁĄD BRAKU DANYCH (#N/D!)❗', # Kod dla #N/A
+        '0x1c': f'❗BŁĄD NAZWY (#NAZWA?)❗'       # Kod dla #NAME?
+    }
+
+    if el in excel_errors:
+        return excel_errors[el]
+
     try:
-        liczba = float(el)
-        if liczba.is_integer():
-            return int(liczba)
-        return liczba
-    except ValueError:
+        number = round(float(el), 10)
+        if number.is_integer():
+            return int(number)
+        return number
+    except (ValueError, TypeError):
         return el
 
 excel_dict = {}
@@ -61,7 +71,7 @@ with open_workbook(str(excel_url)) as wb:
     with wb.get_sheet('OUTBOUND') as sheet:
         for row in sheet.rows():
             if row[0].v is not None:
-                klucz = (row[0].v).split('.')[-1]
+                klucz = row[0].v.split('.')[-1]
                 wartosc = str(row[1].v).split('|')
                 przekonwert = [konwert(i) for i in wartosc]
                 excel_dict[klucz] = przekonwert
@@ -125,7 +135,6 @@ md_content = [
     f"| 🎭 | KLUCZ | PLIK EXCEL | PLIK XML |",
     "| :--- | :--- | :--- | :--- |",
 ] + md_content
-
 
 with open(f'{FOLDER_NAME}/RAPORT.md', 'w', encoding='utf-8') as raport:
     raport.write("\n".join(md_content))
