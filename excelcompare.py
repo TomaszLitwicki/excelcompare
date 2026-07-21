@@ -7,6 +7,7 @@ FOLDER_NAME = 'TestCase01'
 ### USTAWIENIA FORMATOWANIA KONSOLI ###
 RED = "\033[1;4;31m"
 GREEN = "\033[1;4;32m"
+YELLOW = "\033[1;33m"
 UNDERLINE = "\033[4m"
 RESET = "\033[0m"
 
@@ -42,7 +43,7 @@ else:
 
 ### ODCZYTYWANIE DANYCH ###
 print('\nAnaliza danych...')
-print('Po lewej stronie jest klucz z excela - [w nawiasach jest pożądana wartość z excela] - po prawej stronie jest wartość z xmla\n')
+print('🔳 KluczZExcela - [lista wartości z excela] - [lista wartości z xml]\n')
 ## EXCEL ##
 
 def konwert(el):
@@ -82,6 +83,8 @@ xml_list = [i.strip().replace('&lt;','<') for i in xml_list]
 ### PORÓWNANIE PLIKÓW ###
 founded_in_xml = ['Nazwa zmiennej']
 for excel_key, excel_value in excel_dict.items():
+    if excel_key == 'Nazwa zmiennej':
+        continue
     open_mark = f"<{excel_key}>"
     close_mark = f"</{excel_key}>"
     xml_founded_value = []
@@ -89,13 +92,16 @@ for excel_key, excel_value in excel_dict.items():
         if xml.startswith(open_mark) and xml.endswith(close_mark):
             xml_value = konwert(xml.split('>')[1].split('<')[0])
             xml_founded_value.append(xml_value)
+            founded_in_xml.append(excel_key)
 
-    if excel_value == xml_founded_value:
+    if not xml_founded_value:
+        print(f'⚠️ {YELLOW}{excel_key} - {excel_value} - nie znaleziono w xml{RESET} ')
+    elif excel_value == xml_founded_value:
         print(f'✅ {GREEN}{excel_key} - {excel_value} - {xml_founded_value}{RESET} ')
     else:
         print(f'❌ {RED}{excel_key} - {excel_value} - {xml_founded_value}{RESET} ')
 
-        founded_in_xml.append(excel_key)
+
 
 print('\nBrakujące klucze w pliku xml:')
 brakujace_klucze = set(excel_dict.keys()) - set(founded_in_xml)
