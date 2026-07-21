@@ -76,8 +76,8 @@ with open(xml_url, 'r', encoding='utf-8') as xml_file:
 xml_txt = xml_txt.split('<m:xmlString>&lt;outbound>')[1].split('</m:xmlString>')[0].strip()
 xml_list = xml_txt.split('\n')
 xml_list = [i.strip().replace('&lt;','<') for i in xml_list]
-for i in xml_list:
-    print(i)
+# for i in xml_list:
+#     print(i)
 
 ### PORÓWNANIE PLIKÓW ###
 founded_in_xml = ['Nazwa zmiennej']
