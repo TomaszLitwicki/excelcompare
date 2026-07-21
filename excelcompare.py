@@ -1,8 +1,15 @@
 from pyxlsb import open_workbook
 from pathlib import Path
 
-###PODAJ NAZWĘ FOLDERU Z TEST CASEM###
-FOLDER_NAME = 'TestCase01'
+### STWÓRZ FOLDER 'xml' i tam wgraj pliki xml ###
+### PLIK EXCELA UMIEŚĆ W TYM SAMYM KATALOGU CO PLIK PYTHONA ###
+### USTAWIAJ W EXCELU INTERESUJĄCY CIĘ PRZYPADEK TESTOWY ###
+### PODAWAJ TUTAJ NAZWĘ PLIKU XML DO ANALIZY###
+XML_FILE_NAME = 'nazwa_pliku_xml'
+
+
+
+### RESZTA DZIAŁA JUŻ SAMA ###
 
 ### USTAWIENIA FORMATOWANIA KONSOLI ###
 RED = "\033[1;4;31m"
@@ -14,36 +21,40 @@ RESET = "\033[0m"
 ### POBIERANIE PLIKÓW Z KATALOGÓW ###
 print(f'{UNDERLINE}WELCOME TO EXCEL-FILES COMPARER{RESET}\nPreparing a files...')
 
-folder = Path(FOLDER_NAME)
+BASE_DIR = Path(__file__).resolve().parent
+folder_xml = BASE_DIR / 'xml'
+folder_reports = BASE_DIR / 'reports'
 
-if folder.exists():
+
+if folder_xml.exists():
     print (f'{GREEN}LOADED FOLDER CORRECTLY{RESET}')
-    print(folder)
+    print(folder_xml)
 else:
-    print (f'{RED}FOLDER {folder} DOESN\'T EXIST{RESET}')
+    print (f'{RED}FOLDER {folder_xml} DOESN\'T EXIST. {RESET}\n{YELLOW}Please, create a folder xml and put there a files xml{RESET}')
     exit()
 
-excel_file = [i.name for i in folder.glob('*.xlsb') if not i.name.startswith('~$')]
+excel_file = [i.name for i in BASE_DIR.glob('*.xlsb') if not i.name.startswith('~$')]
 if len(excel_file) == 1:
     print(f'{GREEN}LOADED 1 EXCEL FILE CORRECTLY{RESET}')
     NAME_EXCEL_FILE = excel_file[0]
     print(NAME_EXCEL_FILE)
 else:
-    print(f'{RED}ERROR WITH LOADING EXCEL FILE\nPlease, check that in folder is only 1 file.{RESET}')
+    print(f'{RED}ERROR WITH LOADING EXCEL FILE\nPlease, check that in folder where is the Python file is only 1 excel file too.{RESET}')
     exit()
 
-xml_file = [i.name for i in folder.glob('*.xml')]
-if len(xml_file) == 1:
+if not XML_FILE_NAME.endswith('.xml'):
+    XML_FILE_NAME = f'{XML_FILE_NAME}.xml'
+xml_files = [i.name for i in folder_xml.glob('*.xml')]
+if XML_FILE_NAME in xml_files:
     print(f'{GREEN}LOADED 1 XML FILE CORRECTLY{RESET}')
-    NAME_XML_FILE = xml_file[0]
-    print(NAME_XML_FILE)
+    print(XML_FILE_NAME)
 else:
-    print(f'{RED}ERROR WITH LOADING XML FILE\nPlease, check that in folder is only 1 file.{RESET}')
+    print(f'{RED}ERROR WITH LOADING XML FILE{RESET}\n{YELLOW}Please, check that in folder xml is file ({XML_FILE_NAME}).{RESET}')
     exit()
 
 ### ODCZYTYWANIE DANYCH ###
-print('\nAnaliza danych...')
-print('🔳 KluczZExcela - [lista wartości z excela] - [lista wartości z xml]\n')
+print('\nAnaliza danych...\n')
+print('🔳 KluczZExcela - [lista wartości z excela] - [lista wartości z xml]')
 
 ## EXCEL ##
 def konwert(el):
@@ -66,22 +77,28 @@ def konwert(el):
         return el
 
 excel_dict = {}
-excel_url = folder / NAME_EXCEL_FILE
+excel_url = folder_xml / NAME_EXCEL_FILE
 sections = set()
-with open_workbook(str(excel_url)) as wb:
+with open_workbook(str(NAME_EXCEL_FILE)) as wb:
     with wb.get_sheet('OUTBOUND') as sheet:
         for row in sheet.rows():
-            if row[0].v is not None:
+            cell_a_val = row[0].v
+            cell_b_val = row[1].v
+            if cell_a_val is not None:
                 klucz: str = row[0].v
-                if len(row[0].v.split('.')) > 1:
-                    sections.add(row[0].v.split('.')[-2])
-                    outbound = row[0].v.split('.')[0]
-                wartosc = str(row[1].v).split('|')
+                klucz_lis = (row[0].v.split('.'))
+                if len(klucz_lis) > 1:
+                    sections.add(klucz_lis[-2])
+                    outbound = klucz_lis[0]
+                if cell_b_val is not None:
+                    wartosc = str(row[1].v).split('|')
+                else:
+                    wartosc = '🚫'
                 przekonwert = [konwert(i) for i in wartosc]
                 excel_dict[klucz] = przekonwert
 
 ## XML ##
-xml_url = folder / NAME_XML_FILE
+xml_url = folder_xml / XML_FILE_NAME
 with open(xml_url, 'r', encoding='utf-8') as xml_file:
     xml_txt = xml_file.read()
 
@@ -120,19 +137,19 @@ for excel_key, excel_value in excel_dict.items():
             xml_founded_value.append(xml_value)
             founded_in_xml.append(excel_key)
 
-    exc = "  \|  ".join(str(i) for i in excel_value)
-    xml = "  \|  ".join(str(i) for i in xml_founded_value)
+    exc = "  &#124;  ".join(str(i) for i in excel_value)
+    xml = "  &#124;  ".join(str(i) for i in xml_founded_value)
     if not xml_founded_value:
         print(f'⚠️ {YELLOW}{excel_key} - {excel_value} - nie znaleziono w xml{RESET} ')
 
-        md_content.append(f'| ⚠️ | {excel_key} | {exc} | nie znaleziono w xml |')
+        md_content.append(f'| ⚠️ | {excel_key.split(".", maxsplit=1)[1]} | {exc} | nie znaleziono w xml |')
     elif excel_value == xml_founded_value:
         print(f'✅ {GREEN}{excel_key} - {excel_value} - {xml_founded_value}{RESET} ')
 
-        md_content.append(f'| ✅ | {excel_key} | {exc} | {xml} |')
+        md_content.append(f'| ✅ | {excel_key.split(".", maxsplit=1)[1]} | {exc} | {xml} |')
     else:
         print(f'❌ {RED}{excel_key} - {excel_value} - {xml_founded_value}{RESET} ')
-        md_content.append(f'| ❌ |{excel_key} | {exc} | {xml} |')
+        md_content.append(f'| ❌ |{excel_key.split(".", maxsplit=1)[1]} | {exc} | {xml} |')
 
 
 
@@ -144,12 +161,13 @@ print(brakujace_klucze)
 import datetime
 md_content = [
     "## 📊 RAPORT TESTU REGRESYJNEGO API",
-    f"+ Przypadek testowy: {FOLDER_NAME}",
+    f"+ Przypadek testowy: {XML_FILE_NAME.removesuffix('.xml')}",
     f"+ Data sporządzenia raportu: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
     "#### Porównanie wartości kluczy\n",
     f"| 🎭 | KLUCZ | PLIK EXCEL | PLIK XML |",
     "| :--- | :--- | :--- | :--- |",
 ] + md_content
 
-with open(f'{FOLDER_NAME}/RAPORT.md', 'w', encoding='utf-8') as raport:
+folder_reports.mkdir(parents=True, exist_ok=True)
+with open(f'{folder_reports}/{XML_FILE_NAME.removesuffix(".xml")}.md', 'w', encoding='utf-8') as raport:
     raport.write("\n".join(md_content))
