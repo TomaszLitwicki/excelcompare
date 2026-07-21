@@ -81,6 +81,7 @@ xml_list = [i.strip().replace('&lt;','<') for i in xml_list]
 #     print(i)
 
 ### PORÓWNANIE PLIKÓW ###
+md_content = []
 founded_in_xml = ['Nazwa zmiennej']
 for excel_key, excel_value in excel_dict.items():
     if excel_key == 'Nazwa zmiennej':
@@ -94,15 +95,37 @@ for excel_key, excel_value in excel_dict.items():
             xml_founded_value.append(xml_value)
             founded_in_xml.append(excel_key)
 
+    exc = "  \|  ".join(str(i) for i in excel_value)
+    xml = "  \|  ".join(str(i) for i in xml_founded_value)
     if not xml_founded_value:
         print(f'⚠️ {YELLOW}{excel_key} - {excel_value} - nie znaleziono w xml{RESET} ')
+
+        md_content.append(f'| ⚠️ | {excel_key} | {exc} | nie znaleziono w xml |')
     elif excel_value == xml_founded_value:
         print(f'✅ {GREEN}{excel_key} - {excel_value} - {xml_founded_value}{RESET} ')
+
+        md_content.append(f'| ✅ | {excel_key} | {exc} | {xml} |')
     else:
         print(f'❌ {RED}{excel_key} - {excel_value} - {xml_founded_value}{RESET} ')
+        md_content.append(f'| ❌ |{excel_key} | {exc} | {xml} |')
 
 
 
 print('\nBrakujące klucze w pliku xml:')
 brakujace_klucze = set(excel_dict.keys()) - set(founded_in_xml)
 print(brakujace_klucze)
+
+### RAPORT ###
+import datetime
+md_content = [
+    "## 📊 RAPORT TESTU REGRESYJNEGO API",
+    f"+ Przypadek testowy: {FOLDER_NAME}",
+    f"+ Data sporządzenia raportu: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+    "#### Porównanie wartości kluczy\n",
+    f"| 🎭 | KLUCZ | PLIK EXCEL | PLIK XML |",
+    "| :--- | :--- | :--- | :--- |",
+] + md_content
+
+
+with open(f'{FOLDER_NAME}/RAPORT.md', 'w', encoding='utf-8') as raport:
+    raport.write("\n".join(md_content))
