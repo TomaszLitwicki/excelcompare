@@ -44,8 +44,8 @@ else:
 ### ODCZYTYWANIE DANYCH ###
 print('\nAnaliza danych...')
 print('🔳 KluczZExcela - [lista wartości z excela] - [lista wartości z xml]\n')
-## EXCEL ##
 
+## EXCEL ##
 def konwert(el):
     excel_errors = {
         '0xf': f'❗BŁĄD SKŁADNI (#ARG!)❗',       # Kod dla #ARG! / #VALUE!
@@ -67,28 +67,40 @@ def konwert(el):
 
 excel_dict = {}
 excel_url = folder / NAME_EXCEL_FILE
+sections = set()
 with open_workbook(str(excel_url)) as wb:
     with wb.get_sheet('OUTBOUND') as sheet:
         for row in sheet.rows():
             if row[0].v is not None:
-                klucz = row[0].v.split('.')[-1]
+                klucz: str = row[0].v
+                if len(row[0].v.split('.')) > 1:
+                    sections.add(row[0].v.split('.')[-2])
+                    outbound = row[0].v.split('.')[0]
                 wartosc = str(row[1].v).split('|')
                 przekonwert = [konwert(i) for i in wartosc]
                 excel_dict[klucz] = przekonwert
-
-# for i in excel_dict.items():
-#     print(i)
 
 ## XML ##
 xml_url = folder / NAME_XML_FILE
 with open(xml_url, 'r', encoding='utf-8') as xml_file:
     xml_txt = xml_file.read()
 
-xml_txt = xml_txt.split('<m:xmlString>&lt;outbound>')[1].split('</m:xmlString>')[0].strip()
+xml_txt = xml_txt.split('<m:xmlString>&lt;outbound>')[1].split('</m:xmlString>')[0].strip().replace('&lt;','<')
+xml_outbound = xml_txt
+xml_secionizer = {}
+for sec in sections:
+    if sec != outbound:
+        xml_secionizer[sec] = [i.strip() for i in xml_txt.split(f'<{sec}>')[1].split(f'</sec>')[0].strip().split('\n')]
+    else:
+        for s in sections:
+            if s != outbound:
+                l, c = xml_outbound.split(f'<{s}>')
+                c, p = c.strip().split(f'</{s}>')
+                xml_outbound = l + p.strip()
+        xml_secionizer[sec] = [i.strip() for i in xml_outbound.split('\n')]
+
 xml_list = xml_txt.split('\n')
-xml_list = [i.strip().replace('&lt;','<') for i in xml_list]
-# for i in xml_list:
-#     print(i)
+xml_list = [i.strip() for i in xml_list]
 
 ### PORÓWNANIE PLIKÓW ###
 md_content = []
@@ -96,9 +108,12 @@ founded_in_xml = ['Nazwa zmiennej']
 for excel_key, excel_value in excel_dict.items():
     if excel_key == 'Nazwa zmiennej':
         continue
-    open_mark = f"<{excel_key}>"
-    close_mark = f"</{excel_key}>"
+    excel_key_list = excel_key.split('.')
+    excel_section = excel_key_list[-2]
+    open_mark = f"<{excel_key_list[-1]}>"
+    close_mark = f"</{excel_key_list[-1]}>"
     xml_founded_value = []
+    xml_list: list = xml_secionizer[excel_section]
     for xml in xml_list:
         if xml.startswith(open_mark) and xml.endswith(close_mark):
             xml_value = konwert(xml.split('>')[1].split('<')[0])
