@@ -81,18 +81,21 @@ for i in xml_list:
 
 ### PORÓWNANIE PLIKÓW ###
 founded_in_xml = ['Nazwa zmiennej']
-for excel in excel_dict.items():
-    excel_klucz = excel[0]
-    excel_wartosc = excel[1]
+for excel_key, excel_value in excel_dict.items():
+    open_mark = f"<{excel_key}>"
+    close_mark = f"</{excel_key}>"
+    xml_founded_value = []
     for xml in xml_list:
-        if f'<{excel_klucz}>' in xml or f'<{excel_klucz}/>' in xml:
-            xml_wartosc = konwert(xml.split('>')[1].split('<')[0])
-            if xml_wartosc in excel_wartosc:
-                print(f'{GREEN}{excel_klucz} - {excel_wartosc} - {xml_wartosc}{RESET}')
-            else:
-                print(f'{RED}{excel_klucz} - {excel_wartosc} - {xml_wartosc}{RESET}')
+        if xml.startswith(open_mark) and xml.endswith(close_mark):
+            xml_value = konwert(xml.split('>')[1].split('<')[0])
+            xml_founded_value.append(xml_value)
 
-            founded_in_xml.append(excel_klucz)
+    if excel_value == xml_founded_value:
+        print(f'✅ {GREEN}{excel_key} - {excel_value} - {xml_founded_value}{RESET} ')
+    else:
+        print(f'❌ {RED}{excel_key} - {excel_value} - {xml_founded_value}{RESET} ')
+
+        founded_in_xml.append(excel_key)
 
 print('\nBrakujące klucze w pliku xml:')
 brakujace_klucze = set(excel_dict.keys()) - set(founded_in_xml)
