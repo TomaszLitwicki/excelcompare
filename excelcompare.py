@@ -105,6 +105,12 @@ with open(xml_url, 'r', encoding='utf-8') as xml_file:
 xml_txt = xml_txt.split('<m:xmlString>&lt;outbound>')[1].split('</m:xmlString>')[0].strip().replace('&lt;','<')
 xml_outbound = xml_txt
 xml_secionizer = {}
+
+for sec in sections.copy():
+    if f'<{sec}/>' in xml_txt:
+        sections.remove(sec)
+        xml_secionizer[sec] = ['']
+
 for sec in sections:
     if sec != outbound:
         xml_secionizer[sec] = [i.strip() for i in xml_txt.split(f'<{sec}>')[1].split(f'</sec>')[0].strip().split('\n')]

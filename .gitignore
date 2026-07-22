@@ -66,3 +66,6 @@ coverage.xml
 .idea/
 .DS_Store
 Thumbs.db
+/reports/nazwa_pliku_xml.md
+/xml/nazwa_pliku_xml.xml
+/nazwa_skoroszytu.xlsb
