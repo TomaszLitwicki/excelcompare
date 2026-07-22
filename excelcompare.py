@@ -113,7 +113,7 @@ for sec in sections.copy():
 
 for sec in sections:
     if sec != outbound:
-        xml_secionizer[sec] = [i.strip() for i in xml_txt.split(f'<{sec}>')[1].split(f'</sec>')[0].strip().split('\n')]
+        xml_secionizer[sec] = [i.strip() for i in xml_txt.split(f'<{sec}>')[1].split(f'</{sec}>')[0].strip().split('\n')]
     else:
         for s in sections:
             if s != outbound:
