@@ -44,7 +44,6 @@ pip install -r requirements.txt
 ```
 excelcompare/
 ├─ excelcompare.py
-├─ requirements.txt
 ├─ <workbook>.xlsb        # expected values — one workbook, next to the script
 ├─ xml/                   # XML responses to check
 └─ reports/               # generated reports (created automatically)
@@ -125,7 +124,7 @@ The data below is invented — it only shows the shape the tool expects.
 
 **Resulting report:**
 
-```markdown
+
 ## API REGRESSION TEST REPORT
 + Test case: my_test_case
 + Generated: 2026-08-05 10:13:01
@@ -140,7 +139,6 @@ The data below is invented — it only shows the shape the tool expects.
 | ❌ | Items.Label   | 🚫                   | COS  \|  -9     |
 | ✅ | Summary.Total | 1500                 | 1500            |
 | ⚠️ | Summary.Ratio | ❗SYNTAX ERROR (#VALUE!)❗ | not found in xml |
-```
 
 Reading the interesting rows:
 

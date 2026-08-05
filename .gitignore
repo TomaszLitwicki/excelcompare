@@ -1,9 +1,6 @@
 # Tajne pliki projektu
 TestCase01/
 data/
-/reports/nazwa_pliku_xml.md
-/xml/nazwa_pliku_xml.xml
-/nazwa_skoroszytu.xlsb
 xml/*.xml
 reports/*.md
 *.xlsb
