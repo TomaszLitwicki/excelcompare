@@ -77,9 +77,8 @@ def konwert(el):
         return el
 
 excel_dict = {}
-excel_url = folder_xml / NAME_EXCEL_FILE
 sections = set()
-with open_workbook(str(NAME_EXCEL_FILE)) as wb:
+with open_workbook(str(BASE_DIR / NAME_EXCEL_FILE)) as wb:
     with wb.get_sheet('OUTBOUND') as sheet:
         for row in sheet.rows():
             cell_a_val = row[0].v
@@ -127,7 +126,7 @@ xml_list = [i.strip() for i in xml_list]
 
 ### PORÓWNANIE PLIKÓW ###
 md_content = []
-founded_in_xml = ['Nazwa zmiennej']
+found_in_xml = ['Nazwa zmiennej']
 for excel_key, excel_value in excel_dict.items():
     if excel_key == 'Nazwa zmiennej':
         continue
@@ -135,32 +134,32 @@ for excel_key, excel_value in excel_dict.items():
     excel_section = excel_key_list[-2]
     open_mark = f"<{excel_key_list[-1]}>"
     close_mark = f"</{excel_key_list[-1]}>"
-    xml_founded_value = []
+    xml_found_value = []
     xml_list: list = xml_secionizer[excel_section]
     for xml in xml_list:
         if xml.startswith(open_mark) and xml.endswith(close_mark):
             xml_value = konwert(xml.split('>')[1].split('<')[0])
-            xml_founded_value.append(xml_value)
-            founded_in_xml.append(excel_key)
+            xml_found_value.append(xml_value)
+            found_in_xml.append(excel_key)
 
     exc = "  &#124;  ".join(str(i) for i in excel_value)
-    xml = "  &#124;  ".join(str(i) for i in xml_founded_value)
-    if not xml_founded_value:
+    xml = "  &#124;  ".join(str(i) for i in xml_found_value)
+    if not xml_found_value:
         print(f'⚠️ {YELLOW}{excel_key} - {excel_value} - nie znaleziono w xml{RESET} ')
 
         md_content.append(f'| ⚠️ | {excel_key.split(".", maxsplit=1)[1]} | {exc} | nie znaleziono w xml |')
-    elif excel_value == xml_founded_value:
-        print(f'✅ {GREEN}{excel_key} - {excel_value} - {xml_founded_value}{RESET} ')
+    elif excel_value == xml_found_value:
+        print(f'✅ {GREEN}{excel_key} - {excel_value} - {xml_found_value}{RESET} ')
 
         md_content.append(f'| ✅ | {excel_key.split(".", maxsplit=1)[1]} | {exc} | {xml} |')
     else:
-        print(f'❌ {RED}{excel_key} - {excel_value} - {xml_founded_value}{RESET} ')
+        print(f'❌ {RED}{excel_key} - {excel_value} - {xml_found_value}{RESET} ')
         md_content.append(f'| ❌ |{excel_key.split(".", maxsplit=1)[1]} | {exc} | {xml} |')
 
 
 
 print('\nBrakujące klucze w pliku xml:')
-brakujace_klucze = set(excel_dict.keys()) - set(founded_in_xml)
+brakujace_klucze = set(excel_dict.keys()) - set(found_in_xml)
 print(brakujace_klucze)
 
 ### RAPORT ###
